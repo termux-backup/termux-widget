@@ -18,19 +18,20 @@ import androidx.annotation.NonNull;
 import com.google.common.base.Joiner;
 import com.termux.shared.data.DataUtils;
 import com.termux.shared.data.IntentUtils;
+import com.termux.shared.errors.Error;
 import com.termux.shared.file.FileUtils;
-import com.termux.shared.file.TermuxFileUtils;
 import com.termux.shared.file.filesystem.FileType;
 import com.termux.shared.logger.Logger;
-import com.termux.shared.models.ExecutionCommand;
-import com.termux.shared.models.ResultData;
-import com.termux.shared.models.errors.Error;
-import com.termux.shared.settings.preferences.TermuxWidgetAppSharedPreferences;
 import com.termux.shared.shell.ShellUtils;
+import com.termux.shared.shell.command.ExecutionCommand;
+import com.termux.shared.shell.command.ExecutionCommand.Runner;
+import com.termux.shared.shell.command.result.ResultData;
 import com.termux.shared.termux.TermuxConstants;
 import com.termux.shared.termux.TermuxConstants.TERMUX_APP.TERMUX_SERVICE;
-import com.termux.shared.termux.TermuxConstants.TERMUX_WIDGET.TERMUX_WIDGET_PROVIDER;
+import com.termux.shared.termux.TermuxConstants.TERMUX_WIDGET_APP.TERMUX_WIDGET_PROVIDER;
 import com.termux.shared.termux.TermuxUtils;
+import com.termux.shared.termux.file.TermuxFileUtils;
+import com.termux.shared.termux.settings.preferences.TermuxWidgetAppSharedPreferences;
 import com.termux.widget.utils.ShortcutUtils;
 
 import java.io.File;
@@ -85,6 +86,7 @@ public final class TermuxWidgetProvider extends AppWidgetProvider {
         // The empty view is displayed when the collection has no items. It should be a sibling
         // of the collection view:
         remoteViews.setEmptyView(R.id.widget_list, R.id.empty_view);
+        remoteViews.setTextViewText(R.id.empty_view, context.getString(R.string.msg_no_shortcut_scripts));
 
         // Setup intent which points to the TermuxWidgetService which will provide the views for this collection.
         Intent intent = new Intent(context, TermuxWidgetService.class);
@@ -183,9 +185,9 @@ public final class TermuxWidgetProvider extends AppWidgetProvider {
 
                 List<Integer> updatedAppWidgetIds = refreshAppWidgets(context, appWidgetIds, updateRemoteViews);
                 if (updatedAppWidgetIds != null)
-                    Logger.logDebugAndShowToast(context, LOG_TAG, context.getString(R.string.msg_widgets_reloaded, Arrays.toString(appWidgetIds)));
+                    Logger.logDebugAndShowToast(context, LOG_TAG, context.getString(R.string.msg_widgets_refreshed, Arrays.toString(appWidgetIds)));
                 else
-                    Logger.logDebugAndShowToast(context, LOG_TAG, context.getString(R.string.msg_no_widgets_found_to_reload));
+                    Logger.logDebugAndShowToast(context, LOG_TAG, context.getString(R.string.msg_no_widgets_found_to_refresh));
                 return;
 
             } default: {
@@ -236,7 +238,7 @@ public final class TermuxWidgetProvider extends AppWidgetProvider {
     public static void handleTermuxShortcutExecutionIntent(Context context, Intent intent, String logTag) {
         if (context == null || intent == null) return;
         logTag = DataUtils.getDefaultIfNull(logTag, LOG_TAG);
-        String token = intent.getStringExtra(TermuxConstants.TERMUX_WIDGET.EXTRA_TOKEN_NAME);
+        String token = intent.getStringExtra(TermuxConstants.TERMUX_WIDGET_APP.EXTRA_TOKEN_NAME);
         if (token == null || !token.equals(TermuxWidgetAppSharedPreferences.getGeneratedToken(context))) {
             Logger.logWarn(logTag, "Invalid token \"" + token + "\" for intent:\n" + IntentUtils.getIntentString(intent));
             Toast.makeText(context, R.string.msg_bad_token, Toast.LENGTH_LONG).show();
@@ -259,7 +261,7 @@ public final class TermuxWidgetProvider extends AppWidgetProvider {
         String errmsg;
         Error error;
 
-        ExecutionCommand executionCommand = new ExecutionCommand();
+        ExecutionCommand executionCommand = new ExecutionCommand(-1);
         executionCommand.executable = shortcutFilePath;
 
         // If Termux app is not installed, enabled or accessible with current context or if
@@ -311,7 +313,7 @@ public final class TermuxWidgetProvider extends AppWidgetProvider {
         File shortcutFile = new File(executionCommand.executable);
         File shortcutParentDirFile = shortcutFile.getParentFile();
         if (shortcutParentDirFile != null && shortcutParentDirFile.getName().equals(TermuxConstants.TERMUX_SHORTCUT_TASKS_SCRIPTS_DIR_BASENAME)) {
-            executionCommand.inBackground = true;
+            executionCommand.runner = Runner.APP_SHELL.getName();
             // Show feedback for background task
             Toast toast = Toast.makeText(context, context.getString(R.string.msg_executing_task,
                     ShellUtils.getExecutableBasename(executionCommand.executable)),
@@ -321,18 +323,20 @@ public final class TermuxWidgetProvider extends AppWidgetProvider {
             // See https://github.com/termux/termux-widget/issues/33
             toast.setGravity(Gravity.TOP, 0, 0);
             toast.show();
+        } else {
+            executionCommand.runner = Runner.TERMINAL_SESSION.getName();
         }
-
 
         // Create execution intent with the action TERMUX_SERVICE#ACTION_SERVICE_EXECUTE to be sent to the TERMUX_SERVICE
         executionCommand.executableUri = new Uri.Builder().scheme(TERMUX_SERVICE.URI_SCHEME_SERVICE_EXECUTE).path(executionCommand.executable).build();
         Intent executionIntent = new Intent(TERMUX_SERVICE.ACTION_SERVICE_EXECUTE, executionCommand.executableUri);
         executionIntent.setClassName(TermuxConstants.TERMUX_PACKAGE_NAME, TermuxConstants.TERMUX_APP.TERMUX_SERVICE_NAME);
-        executionIntent.putExtra(TERMUX_SERVICE.EXTRA_BACKGROUND, executionCommand.inBackground);
+        executionIntent.putExtra(TERMUX_SERVICE.EXTRA_RUNNER, executionCommand.runner); // Runner extra will be prioritized over background extra
+        executionIntent.putExtra(TERMUX_SERVICE.EXTRA_BACKGROUND, Runner.APP_SHELL.getName().equals(executionCommand.runner)); // Backward compatibility for runner
         executionIntent.putExtra(TERMUX_SERVICE.EXTRA_PLUGIN_API_HELP, context.getString(R.string.plugin_api_help, TermuxConstants.TERMUX_WIDGET_GITHUB_REPO_URL));
 
         Logger.logVerboseExtended(logTag, executionCommand.toString());
-        Logger.logDebug(logTag, "Sending execution intent to " + executionIntent.getComponent().toString() + " for \"" + executionCommand.executable + "\" with background mode " + executionCommand.inBackground);
+        Logger.logDebug(logTag, "Sending execution intent to " + executionIntent.getComponent().toString() + " for \"" + executionCommand.executable + "\" with runner " + executionCommand.runner);
 
         try {
             // Send execution intent to execution service
