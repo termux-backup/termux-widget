@@ -94,4 +94,17 @@
     <string name="error_create_pinned_shortcut_failed">Failed to create pinned shortcut for \"%1$s\"</string>
     <string name="error_create_static_shortcut_failed">Failed to create static shortcut for \"%1$s\"</string>
 
+    <!-- Widget Color Settings -->
+    <string name="settings_custom_colors">Custom Widget Colors</string>
+    <string name="settings_widget_colors">Widget Colors</string>
+    <string name="settings_header_background">Header Background</string>
+    <string name="settings_header_text">Header Text</string>
+    <string name="settings_list_background">List Background</string>
+    <string name="settings_divider">Divider</string>
+    <string name="settings_empty_view_background">Empty View Background</string>
+    <string name="settings_empty_view_text">Empty View Text</string>
+    <string name="settings_item_text">Item Text</string>
+    <string name="settings_reset_colors">Reset to Default</string>
+    <string name="settings_color_picker_title">Choose Color</string>
+
 </resources>

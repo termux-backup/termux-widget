@@ -183,6 +183,21 @@
                 app:strokeColor="?android:textColorPrimary"
                 app:strokeWidth="2dp"/>
 
+            <View style="@style/ViewDivider"/>
+
+            <com.google.android.material.button.MaterialButton
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:id="@+id/button_widget_color_settings"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:gravity="center"
+                android:text="@string/settings_widget_colors"
+                android:textSize="12sp"
+                android:textColor="?android:textColorPrimary"
+                app:strokeColor="?android:textColorPrimary"
+                app:strokeWidth="2dp"/>
+
         </LinearLayout>
 
     </ScrollView>

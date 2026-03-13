@@ -1,5 +1,6 @@
 package com.termux.widget.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -65,6 +66,7 @@ public class TermuxWidgetMainActivity extends AppCompatActivity {
 
         setDynamicShortcutsViews();
         setRefreshAllWidgetsViews();
+        setWidgetColorSettingsViews();
         sendIntentToRefreshAllWidgets();
     }
 
@@ -166,6 +168,14 @@ public class TermuxWidgetMainActivity extends AppCompatActivity {
         Button refreshAllWidgetsIconButton = findViewById(R.id.button_refresh_all_widgets);
         refreshAllWidgetsIconButton.setOnClickListener(
                 v -> sendIntentToRefreshAllWidgets());
+    }
+
+    private void setWidgetColorSettingsViews() {
+        Button colorSettingsButton = findViewById(R.id.button_widget_color_settings);
+        colorSettingsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, WidgetColorSettingsActivity.class);
+            startActivity(intent);
+        });
     }
 
     public void sendIntentToRefreshAllWidgets() {

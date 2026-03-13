@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Widget Header Colors (Dark Mode) -->
+    <color name="widget_header_background">#FF000000</color>
+    <color name="widget_header_text">#FFFFFFFF</color>
+    
+    <!-- Widget List Colors (Dark Mode) -->
+    <color name="widget_list_background">#FF202432</color>
+    <color name="widget_divider">#FF444444</color>
+    <color name="widget_empty_view_background">#FF202432</color>
+    <color name="widget_empty_view_text">#FFFFFFFF</color>
+    
+    <!-- Widget Item Colors (Dark Mode) -->
+    <color name="widget_item_text">#FFFFFFFF</color>
+    <color name="widget_item_ripple">#FFFFFFFF</color>
+</resources>

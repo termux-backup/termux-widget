@@ -35,6 +35,12 @@
             android:theme="@style/Theme.BaseActivity.DayNight.NoActionBar">
         </activity>
 
+        <activity
+            android:name=".activities.WidgetColorSettingsActivity"
+            android:exported="true"
+            android:theme="@style/Theme.BaseActivity.DayNight.NoActionBar">
+        </activity>
+
         <activity-alias
             android:name=".activities.TermuxWidgetLauncherActivity"
             android:exported="true"

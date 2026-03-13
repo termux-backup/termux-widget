@@ -14,18 +14,35 @@
             android:id="@+id/top_row"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#FF000000"
+            android:background="@color/widget_header_background"
             android:orientation="horizontal"
+            android:gravity="center_vertical"
             android:padding="6dp" >
 
             <TextView
+                android:id="@+id/widget_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="2.0"
+                android:layout_weight="1"
                 android:text="@string/title_widget"
-                android:textColor="@android:color/primary_text_dark"
+                android:textColor="@color/widget_header_text"
                 android:textSize="18sp" />
+
+            <ImageButton
+                android:id="@+id/settings_button"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:contentDescription="@string/settings_widget_colors"
+                android:src="@android:drawable/ic_menu_preferences" />
+
+            <ImageButton
+                android:id="@+id/refresh_button"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:contentDescription="@string/action_refresh"
+                android:src="@android:drawable/stat_notify_sync" />
         </LinearLayout>
 
         <ListView
@@ -33,8 +50,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@id/top_row"
-            android:background="#202432"
-            android:divider="@android:color/darker_gray"
+            android:background="@color/widget_list_background"
+            android:divider="@color/widget_divider"
             android:dividerHeight="1px" >
         </ListView>
 
@@ -45,20 +62,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@id/top_row"
-            android:background="#202432"
+            android:background="@color/widget_empty_view_background"
             android:padding="6dp"
             android:text="@string/msg_refresh_widget_from_app"
-            android:textColor="@android:color/black" />
+            android:textColor="@color/widget_empty_view_text" />
     </RelativeLayout>
-
-    <ImageButton
-        android:id="@+id/refresh_button"
-        style="?android:attr/borderlessButtonStyle"
-        android:layout_width="34dp"
-        android:layout_height="34dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:contentDescription="@string/action_refresh"
-        android:src="@android:drawable/stat_notify_sync" />
 
 </RelativeLayout>

@@ -33,6 +33,7 @@ import com.termux.shared.termux.TermuxUtils;
 import com.termux.shared.termux.file.TermuxFileUtils;
 import com.termux.shared.termux.settings.preferences.TermuxWidgetAppSharedPreferences;
 import com.termux.widget.utils.ShortcutUtils;
+import com.termux.widget.utils.WidgetColors;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -106,6 +107,15 @@ public final class TermuxWidgetProvider extends AppWidgetProvider {
                 PendingIntent.FLAG_UPDATE_CURRENT);
         remoteViews.setOnClickPendingIntent(R.id.refresh_button, refreshPendingIntent);
 
+        // Setup settings button:
+        Intent settingsIntent = new Intent(context, TermuxWidgetProvider.class);
+        settingsIntent.setAction("com.termux.widget.ACTION_OPEN_SETTINGS");
+        settingsIntent.setData(Uri.parse(settingsIntent.toUri(Intent.URI_INTENT_SCHEME)));
+        @SuppressLint("UnspecifiedImmutableFlag")
+        PendingIntent settingsPendingIntent = PendingIntent.getBroadcast(context, 1, settingsIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        remoteViews.setOnClickPendingIntent(R.id.settings_button, settingsPendingIntent);
+
         // Here we setup the a pending intent template. Individuals items of a collection
         // cannot setup their own pending intents, instead, the collection as a whole can
         // setup a pending intent template, and the individual items can set a fillInIntent
@@ -118,6 +128,8 @@ public final class TermuxWidgetProvider extends AppWidgetProvider {
         PendingIntent toastPendingIntent = PendingIntent.getBroadcast(context, 0, toastIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
         remoteViews.setPendingIntentTemplate(R.id.widget_list, toastPendingIntent);
+
+        WidgetColors.applyColorsToRemoteViews(context, remoteViews);
 
         appWidgetManager.updateAppWidget(appWidgetId, remoteViews);
     }
@@ -162,6 +174,12 @@ public final class TermuxWidgetProvider extends AppWidgetProvider {
                 }
                 
                 sendExecutionIntentToTermuxService(context, clickedFilePath, LOG_TAG);
+                return;
+
+            } case "com.termux.widget.ACTION_OPEN_SETTINGS": {
+                Intent settingsIntent = new Intent(context, com.termux.widget.activities.WidgetColorSettingsActivity.class);
+                settingsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(settingsIntent);
                 return;
 
             } case TERMUX_WIDGET_PROVIDER.ACTION_REFRESH_WIDGET: {

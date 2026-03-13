@@ -27,6 +27,7 @@ import com.termux.shared.termux.TermuxConstants;
 import com.termux.shared.termux.file.TermuxFileUtils;
 import com.termux.shared.termux.settings.preferences.TermuxWidgetAppSharedPreferences;
 import com.termux.widget.utils.ShortcutUtils;
+import com.termux.widget.utils.WidgetColors;
 
 import java.io.File;
 
@@ -128,6 +129,7 @@ public final class ShortcutFile {
         // Construct remote views item based on the item xml file and set text based on position.
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_item);
         remoteViews.setTextViewText(R.id.widget_item, getLabel());
+        remoteViews.setTextColor(R.id.widget_item, WidgetColors.getItemText(context));
 
         // Next, we set a fill-intent which will be used to fill-in the pending intent template
         // which is set on the collection view in TermuxAppWidgetProvider.
